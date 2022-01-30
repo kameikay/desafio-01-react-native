@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { StyleSheet, View } from "react-native";
+import { Alert, StyleSheet, View } from "react-native";
 
 import { Header } from "../components/Header";
 import { Task, TasksList } from "../components/TasksList";
@@ -9,6 +9,15 @@ export function Home() {
   const [tasks, setTasks] = useState<Task[]>([]);
 
   function handleAddTask(newTaskTitle: string) {
+    const taskAlreadyExists = tasks.find((task) => task.title === newTaskTitle);
+
+    if (taskAlreadyExists) {
+      return Alert.alert(
+        "Task já cadastrada",
+        "Você não pode cadastrar uma task com o mesmo nome"
+      );
+    }
+
     setTasks((prevState) => [
       ...prevState,
       {
@@ -20,19 +29,44 @@ export function Home() {
   }
 
   function handleToggleTaskDone(id: number) {
-    const updatedTasks = tasks.map(task => {
+    const updatedTasks = tasks.map((task) => {
       if (task.id === id) {
-        task.done = !task.done
+        task.done = !task.done;
       }
 
-      return task
-    })
+      return task;
+    });
 
-    setTasks(updatedTasks)
+    setTasks(updatedTasks);
   }
 
   function handleRemoveTask(id: number) {
-    setTasks((prevState) => prevState.filter((task) => task.id !== id));
+    Alert.alert(
+      "Remover item",
+      "Tem certeza que você deseja remover esse item?",
+      [
+        {
+          text: "Sim",
+          onPress: () =>
+            setTasks((prevState) => prevState.filter((task) => task.id !== id)),
+        },
+        {
+          text: "Não",
+        },
+      ]
+    );
+  }
+
+  function handleTaskEdit(taskId: number, taskNewTitle: string) {
+    const newTasks = tasks.map((task) => {
+      if (task.id === taskId) {
+        task.title = taskNewTitle;
+      }
+
+      return task;
+    });
+
+    setTasks(newTasks);
   }
 
   return (
@@ -45,6 +79,7 @@ export function Home() {
         tasks={tasks}
         toggleTaskDone={handleToggleTaskDone}
         removeTask={handleRemoveTask}
+        editTask={handleTaskEdit}
       />
     </View>
   );
